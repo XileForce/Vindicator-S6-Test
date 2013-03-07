@@ -6994,7 +6994,7 @@ void idle_balance(int this_cpu, struct rq *this_rq)
 		return;
 		
 		
-	if (pulled_task || time_after(jiffies, this_rq->next_balance)) {
+	if (!pulled_task || time_after(jiffies, this_rq->next_balance)) {
 		/*
 		 * We are going idle. next_balance may be set based on
 		 * a busy processor. So reset next_balance.
