@@ -6874,10 +6874,12 @@ more_balance:
 	} else {
 		sd->nr_balance_failed = 0;
 		if (per_cpu(dbs_boost_needed, this_cpu)) {
+			unsigned long _busy_cpu;
+			_busy_cpu = cpu_of(busiest);
 			per_cpu(dbs_boost_needed, this_cpu) = false;
 			atomic_notifier_call_chain(&migration_notifier_head,
 						   this_cpu,
-						   (void *)cpu_of(busiest));
+						   (void *)_busy_cpu);
 		}
 	}
 	if (likely(!active_balance)) {
@@ -7094,10 +7096,12 @@ out_unlock:
 		put_task_struct(p);
 		
 	if (per_cpu(dbs_boost_needed, target_cpu)) {
+		unsigned long _busy_cpu;
 		per_cpu(dbs_boost_needed, target_cpu) = false;
+		_busy_cpu = cpu_of(busiest_rq);
 		atomic_notifier_call_chain(&migration_notifier_head,
 					   target_cpu,
-					   (void *)cpu_of(busiest_rq));
+					   (void *)_busy_cpu);
 	}
 	return 0;
 }
