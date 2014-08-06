@@ -327,7 +327,6 @@ static int menu_select(struct cpuidle_driver *drv, struct cpuidle_device *dev)
 	int latency_req = pm_qos_request(PM_QOS_CPU_DMA_LATENCY);
 	int i;
 	unsigned int interactivity_req;
-	struct timespec t;
 	int repeat = 0, low_predicted = 0;
 	int cpu = smp_processor_id();
 	struct hrtimer *hrtmr = &per_cpu(menu_hrtimer, cpu);
@@ -344,9 +343,7 @@ static int menu_select(struct cpuidle_driver *drv, struct cpuidle_device *dev)
 		return 0;
 
 	/* determine the expected residency time, round up */
-	t = ktime_to_timespec(tick_nohz_get_sleep_length());
-	data->next_timer_us =
-		t.tv_sec * USEC_PER_SEC + t.tv_nsec / NSEC_PER_USEC;
+	data->next_timer_us = ktime_to_us(tick_nohz_get_sleep_length());
 
 
 	data->bucket = which_bucket(data->next_timer_us);
