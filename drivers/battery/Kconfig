@@ -430,7 +430,7 @@ config FIX_CHG_FQ_4MHZ
 	  Say Y to fix charging frequency 4MHz
 
 config STORE_MODE
-       bool "enable store mode"
-       default n
-       help
-	 Say Y to enable CONFIG_STORE_MODE
+     bool "enable store mode"
+     default n
+     help
+	   Say Y to enable CONFIG_STORE_MODE
