@@ -644,8 +644,6 @@
 /dev/icdr               u:object_r:icd_device:s0
 /dev/ionfd2phys         u:object_r:ion_device:s0
 /dev/isdbt                      u:object_r:mmb_device:s0
-/dev/mmtunerspi                      u:object_r:mmb_device:s0
-/dev/mmtuneri2c                      u:object_r:mmb_device:s0
 # conflict with Qcom BSP, /dev/media[0-3]*	u:object_r:camera_device:s0
 /dev/mobicore	u:object_r:mobicore_device:s0
 /dev/mobicore-user	u:object_r:mobicore-user_device:s0
