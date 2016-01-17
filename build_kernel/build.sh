@@ -15,25 +15,23 @@ DTS=arch/arm64/boot/dts
 IMG=arch/arm64/boot
 DC=arch/arm64/configs
 BK=build_kernel
-OUT=../output
+OUT=output
 DT=G92X_universal.dtb
 
 # Cleanup old files from build environment
 echo -n "Cleanup build environment.........................."
 cd .. #move to source directory
-rm -rf ../lib
 rm -rf $BK/ramdisk.cpio.gz
 rm -rf $BK/Image*
 rm -rf $BK/boot*.img
 rm -rf $BK/dt*.img
-rm -rf $BK/ramdisk/lib/modules/*.ko
 rm -rf $IMG/Image
 rm -rf $DTS/.*.tmp
 rm -rf $DTS/.*.cmd
 rm -rf $DTS/*.dtb
-rm -rf $OUT/skrn/*.img
-rm -rf $OUT/*.zip
-rm -rf $OUT/*.tar
+rm -rf $BK/$OUT/skrn/*.img
+rm -rf $BK/$OUT/*.zip
+rm -rf $BK/$OUT/*.tar
 rm -rf .config
 echo "Done"
 
@@ -42,10 +40,10 @@ echo -n "Set build variables................................"
 export ARCH=arm64
 export SUBARCH=arm64
 export ccache=ccache
-export USE_SEC_FIPS_MODE=true
-export KCONFIG_NOTIMESTAMP=true
 export KBUILD_BUILD_USER=Xile
 export KBUILD_BUILD_HOST=Xile
+export USE_SEC_FIPS_MODE=true
+export KCONFIG_NOTIMESTAMP=true
 echo "Done"
 echo
 
@@ -67,7 +65,7 @@ if [ "$xc" = "X" -o "$xc" = "x" ]; then
 	# Make and xconfig our defconfig
 	echo -n "Loading xconfig ..................................."
 	cp $DC/$FIT .config
-	xterm -e make ARCH=arm64 xconfig
+	make ARCH=arm64 xconfig
 	echo "Done"
 	mv .config $DC/$FIT
 fi
@@ -77,14 +75,11 @@ echo
 
 echo -n "Compiling Kernel .................................."
 cp $DC/$FIT .config
-xterm -e make ARCH=arm64 -j4
-# xterm -e make ARCH=arm64 INSTALL_MOD_PATH=.. modules_install
+make ARCH=arm64 -j6
 if [ -f "arch/arm64/boot/Image" ]; then
 	echo "Done"
 	# Copy the compiled image to the build_kernel directory
 	mv $IMG/Image $BK/Image
-	# move any modules to the modules folder in ramdisk
-	# find -name '*.ko' -exec cp -av {} $BK/ramdisk/lib/modules/ \; 	>/dev/null
 else
 	clear
 	echo
@@ -128,37 +123,29 @@ echo -n "Make boot.img......................................"
 cd ..
 ./mkbootimg --base 0x10000000 --kernel Image --ramdisk_offset 0x01000000 --tags_offset 0x00000100 --pagesize 2048 --ramdisk ramdisk.cpio.gz --dt dt.img -o boot.img
 # copy the final boot.img's to output directory ready for zipping
-cp boot*.img ../$OUT/skrn/
+cp boot*.img $OUT/skrn/
 echo "Done"
 
 ######################################## ZIP GENERATION #######################################
 
 echo -n "Creating flashable zip............................."
-cd ../$OUT #move to output directory
-xterm -e zip -r TWRP_kernel.zip *
-echo "Done"
-echo -n "Creating ODIN tar.................................."
-cd skrn
-xterm -e tar -H ustar -cvf ODIN_kernel.tar boot.img
-md5sum -t ODIN_kernel.tar >> ODIN_kernel.tar
-cd ..
-mv skrn/ODIN_kernel.tar ODIN_kernel.tar
+cd $OUT #move to output directory
+zip -r Vindicator-Uni-Rx.zip *
 echo "Done"
 
 ###################################### OPTIONAL SOURCE CLEAN ###################################
 
 echo
-cd ../ksource
+cd ../../
 read -p "Do you want to Clean the source? (y/n) > " mc
 if [ "$mc" = "Y" -o "$mc" = "y" ]; then
-	xterm -e make clean
-	xterm -e make mrproper
+	make clean
+	make mrproper
 fi
-rm -rf ../lib
 
 ############################################# CLEANUP ##########################################
 
-cd ../ksource/$BK
+cd $BK
 rm -rf ramdisk.cpio.gz
 rm -rf Image*
 rm -rf boot*.img
@@ -171,5 +158,3 @@ echo
 echo "Build completed"
 echo
 #build script ends
-
-
