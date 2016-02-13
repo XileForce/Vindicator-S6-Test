@@ -75,7 +75,7 @@ echo
 
 echo -n "Compiling Kernel .................................."
 cp $DC/$FIT .config
-make ARCH=arm64 -j6
+make ARCH=arm64 -j4
 if [ -f "arch/arm64/boot/Image" ]; then
 	echo "Done"
 	# Copy the compiled image to the build_kernel directory
@@ -122,6 +122,8 @@ find .| cpio -o -H newc | lzma -9 > ../ramdisk.cpio.gz
 echo -n "Make boot.img......................................"
 cd ..
 ./mkbootimg --base 0x10000000 --kernel Image --ramdisk_offset 0x01000000 --tags_offset 0x00000100 --pagesize 2048 --ramdisk ramdisk.cpio.gz --dt dt.img -o boot.img
+#Remove SEANDROID ENFORCING Message
+echo -n "SEANDROIDENFORCE" >> boot.img
 # copy the final boot.img's to output directory ready for zipping
 cp boot*.img $OUT/skrn/
 echo "Done"
